@@ -15,9 +15,13 @@ Cygwin with the package listed as below:
 
 ## How to run
 compile the program using make
-```make```
-run the program
-```make start```
+```
+make
+```
+to run the program
+```
+make start
+```
 
 ## Controls
 w = move the camera +y axis\
@@ -25,4 +29,4 @@ a = move the camera -x axis\
 s = move the camera -y axis\
 d = move the camera +x axis\
 up = move the camera +z axis\
-down = move the camera -z axis\
+down = move the camera -z axis
