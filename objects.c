@@ -36,6 +36,7 @@ void model_cylinder();
 void drawOneLine();
 void draw_box(GLdouble x_length, GLdouble y_length, GLdouble z_length);
 void draw_cylinder(GLdouble radius, GLdouble height, GLdouble slices);
+void draw_cone(GLdouble radius, GLdouble height, GLdouble slices);
 
 void draw_robot(void){
     /*
@@ -214,6 +215,37 @@ void draw_robot(void){
             draw_cylinder(support_thickness, gun_length, 12);
         glPopMatrix();
 
+        // ANOTHER EXTRAS
+        // Draw Spikes on each wheels
+
+        // Draw the Wheel Left Rear
+        glPushMatrix();
+            glTranslatef(WLR[0] - (rear_thickness_y * 1.5), WLR[1], WLR[2]);
+            glRotatef(-90.0, 0.0, 1.0, 0.0);
+            draw_cone(rear_thickness_y * 0.8, rear_thickness_z * 3, 12);
+        glPopMatrix();
+
+        // Draw the Wheel Right Rear
+        glPushMatrix();
+            glTranslatef(WRR[0] + (rear_thickness_y * 1.5), WRR[1], WRR[2]);
+            glRotatef(90.0, 0.0, 1.0, 0.0);
+            draw_cone(rear_thickness_y * 0.8, rear_thickness_z * 3, 12);
+        glPopMatrix();
+
+        // Draw the Wheel Right Front
+        glPushMatrix();
+            glTranslatef(WRF[0] + (front_thickness_z * 1.5), WRF[1], WRF[2]);
+            glRotatef(90.0, 0.0, 1.0, 0.0);
+            draw_cone(front_thickness_z * 0.8, front_thickness_z * 3, 12);
+        glPopMatrix();
+
+        // Draw the Wheel Left Front
+        glPushMatrix();
+            glTranslatef(WLF[0] - (front_thickness_z * 1.5), WLF[1], WLF[2]);
+            glRotatef(-90.0, 0.0, 1.0, 0.0);
+            draw_cone(front_thickness_z * 0.8, front_thickness_z * 3, 12);
+        glPopMatrix();
+
     glPopMatrix();
 }
 
@@ -271,6 +303,19 @@ void draw_cylinder(GLdouble radius, GLdouble height, GLdouble slices){
         glTranslatef(0, 0, -height/2);
         gluDisk(object, 0, radius, slices, 4);
     glPopMatrix();
+    gluDeleteQuadric(object);
+}
+
+void draw_cone(GLdouble radius, GLdouble height, GLdouble slices){
+    GLUquadricObj *object;
+    object = gluNewQuadric();
+
+    // Draw the cone sides
+    gluCylinder(object, radius, 0, height, slices, 4);
+
+    // Draw the circle
+    gluDisk(object, 0, radius, slices, 4);
+
     gluDeleteQuadric(object);
 }
 

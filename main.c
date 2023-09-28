@@ -101,7 +101,7 @@ int main(int argc, char** argv)
 
     // glEnable(GL_DEPTH_TEST); // Enables Depth Testing
 
-    glutTimerFunc(500, animate, 0);
+    // glutTimerFunc(500, animate, 0);
 
     /* Start Event Processing Engine */ 
     glutMainLoop () ;
