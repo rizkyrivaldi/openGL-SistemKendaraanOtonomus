@@ -18,6 +18,14 @@ GLfloat x_cam_transform = 0;
 GLfloat y_cam_transform = 0;
 GLfloat z_cam_transform = 0;
 
+GLfloat x_cam_translate = 0;
+GLfloat y_cam_translate = 0;
+GLfloat z_cam_translate = 0;
+
+GLfloat cam_rotate_x = 0;
+GLfloat cam_rotate_y = 0;
+GLfloat cam_rotate_z = 0;
+
 GLfloat z_rotate_robot = 0;
 
 #include "constants.c"
@@ -65,13 +73,26 @@ void init_camera(GLfloat x, GLfloat y, GLfloat z){
 }
 
 void render_scene(void){
+    
     init_camera(x_cam_transform, y_cam_transform, z_cam_transform);
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    draw_floor();
 
     glPushMatrix();
-        glRotatef(z_rotate_robot, 0.0, 0.0, 1.0);
-        draw_robot();
+        // Frame rotation and translation
+        glTranslatef(x_cam_translate, y_cam_translate, z_cam_translate);
+        glRotatef(cam_rotate_x, 1, 0, 0);
+        glRotatef(cam_rotate_y, 0, 1, 0);
+        glRotatef(cam_rotate_z, 0, 0, 1);
+
+        // Draw the objects
+        draw_floor();
+
+        glPushMatrix();
+            glRotatef(z_rotate_robot, 0.0, 0.0, 1.0);
+            draw_robot();
+        glPopMatrix();
+
     glPopMatrix();
 
     glutSwapBuffers();
@@ -87,7 +108,7 @@ int main(int argc, char** argv)
     glutInitWindowPosition (40, 100);
 
     /* Open a window */  
-    window = glutCreateWindow ("Simple Window");
+    window = glutCreateWindow ("Rizky Rivaldi Ramadhan");
 
     // Initialize callbacks
     glutDisplayFunc(render_scene);
@@ -101,7 +122,7 @@ int main(int argc, char** argv)
 
     // glEnable(GL_DEPTH_TEST); // Enables Depth Testing
 
-    // glutTimerFunc(500, animate, 0);
+    glutTimerFunc(500, animate, 0);
 
     /* Start Event Processing Engine */ 
     glutMainLoop () ;
