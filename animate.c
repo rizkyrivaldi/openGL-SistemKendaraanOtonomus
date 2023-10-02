@@ -15,7 +15,7 @@ GLint current_step = 0;
 GLint step_size = 36;
 GLfloat degree_per_step = 360.0/(GLfloat)step_size;
 
-void animate(int k){
+void animate_rotate(int k){
     if (current_step < step_size){
         z_rotate_robot = z_rotate_robot + degree_per_step;
     }
@@ -23,6 +23,10 @@ void animate(int k){
         z_rotate_robot = 0;
         current_step = 0;
     }
-    glutPostRedisplay();
-    glutTimerFunc(100.0, animate, 0); // Rotate the bot for each 100 ms
+    // glutPostRedisplay();
+    // glutTimerFunc(100.0, animate, 0); // Rotate the bot for each 100 ms
+}
+
+void animate_movement(int k){
+    
 }

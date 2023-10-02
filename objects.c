@@ -37,6 +37,14 @@ void drawOneLine();
 void draw_box(GLdouble x_length, GLdouble y_length, GLdouble z_length);
 void draw_cylinder(GLdouble radius, GLdouble height, GLdouble slices);
 void draw_cone(GLdouble radius, GLdouble height, GLdouble slices);
+void draw_arena(unsigned int textureNumber);
+int loadGLTexture(const char* filename, int width, int height);
+
+// Additional pointer for texture
+unsigned char* data = NULL;
+
+// file datatype
+FILE *fileimage;
 
 void draw_robot(void){
     /*
@@ -355,4 +363,56 @@ void draw_floor(void)
   }
 
   glPopMatrix();
+}
+
+void draw_arena(unsigned int textureNumber){
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textureNumber);
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glPushMatrix();
+        glBegin(GL_POLYGON);
+        glTexCoord2f(0,1);
+        glVertex3f(-1.0f, -1.0f, 0);
+        glTexCoord2f(0,0);
+        glVertex3f(-1.0f, 1.0f, 0);
+        glTexCoord2f(1,0);
+        glVertex3f(1.0f, 1.0f, 0);
+        glTexCoord2f(1,1);
+        glVertex3f(1.0f, -1.0f, 0);
+        glEnd();
+        glDisable(GL_TEXTURE_2D);
+    glPopMatrix();
+}
+
+int loadGLTexture(const char* filename, int width, int height){
+    free(data);
+
+    // Make sure the file is 500x500 pixel
+    fileimage = fopen(filename, "r");
+    if(fileimage == NULL){
+        return 0;
+    }
+
+    // Allocate buffer
+    data = (unsigned char*) malloc(width * height * 3);
+
+    // Read texture data to buffer
+    fread(data, width * height * 3, 1, fileimage);
+    fclose(fileimage);
+
+    // Initiate GL Texture
+    unsigned int textureID;
+    int border = 0;
+    int depth = width * height * 3;
+    glGenTextures(1, &textureID);
+
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+
+    return textureID;
 }
