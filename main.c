@@ -30,13 +30,16 @@ GLfloat cam_rotate_y = 0;
 GLfloat cam_rotate_z = 0;
 
 // Robot Transformation
-GLfloat x_transpose_robot = 0;
-GLfloat y_transpose_robot = 0;
-GLfloat z_transpose_robot = 0;
+GLfloat x_translate_robot = 0;
+GLfloat y_translate_robot = 0;
+GLfloat z_translate_robot = 0;
+
+GLfloat movement_speed = 0.005;
 
 GLfloat x_rotate_robot = 0.0;
 GLfloat y_rotate_robot = 0.0;
-GLfloat z_rotate_robot = -90.0;
+GLfloat z_rotate_robot = 0.0;
+GLfloat z_rotate_robot_offset = -90.0;
 
 #include "constants.c"
 #include "keyboard.c"
@@ -178,7 +181,7 @@ void init_main_window(void){
 
 void init_second_window(void){
     glutInitWindowSize(800,400);
-    glutInitWindowPosition(300, 100);
+    glutInitWindowPosition(900, 100);
     secondCamera = glutCreateWindow("Second Cam");
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glutDisplayFunc(&render_scene2);
@@ -190,7 +193,7 @@ void init_second_window(void){
 
 void init_third_window(void){
     glutInitWindowSize(500,100);
-    glutInitWindowPosition(700, 100);
+    glutInitWindowPosition(40, 600);
     thirdCamera = glutCreateWindow("Third Cam");
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glutDisplayFunc(&render_scene3);
@@ -202,7 +205,7 @@ void init_third_window(void){
 
 void init_fourth_window(void){
     glutInitWindowSize(500,100);
-    glutInitWindowPosition(900, 100);
+    glutInitWindowPosition(900, 600);
     fourthCamera = glutCreateWindow("Fourth Cam");
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glutDisplayFunc(&render_scene4);
@@ -212,78 +215,125 @@ void init_fourth_window(void){
     textureID = loadGLTexture("assets/ArenaPath.ppm", 500, 500);
 }
 
-void render_scene1(void){
-    
-    // init_main_camera(x_cam_transform, y_cam_transform, z_cam_transform);
-
-    // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // glPushMatrix();
-    //     // Frame rotation and translation
-    //     glTranslatef(x_cam_translate, y_cam_translate, z_cam_translate);
-    //     glRotatef(cam_rotate_x, 1, 0, 0);
-    //     glRotatef(cam_rotate_y, 0, 1, 0);
-    //     glRotatef(cam_rotate_z, 0, 0, 1);
-
-    //     // Draw the objects
-    //     // draw_floor();
-    //     draw_arena(textureID);
-
-    //     glPushMatrix();
-    //         glRotatef(z_rotate_robot, 0.0, 0.0, 1.0);
-    //         draw_robot();
-    //     glPopMatrix();
-
-    // glPopMatrix();
-
-    // glutSwapBuffers();
-}
-
-void render_scene2(void){
-    // init_second_camera(x_cam_transform, y_cam_transform, z_cam_transform);
-
-    // draw_robot();
-    // draw_floor();
-    
-    // glutSwapBuffers();
-}
-
-void render_scene3(void){
-
-}
-
-void render_scene4(void){
-    glClear(GL_COLOR_BUFFER_BIT);
-    glDrawPixels(500, 100, GL_LUMINANCE, GL_UNSIGNED_BYTE, image_raw);
-    glutSwapBuffers();
-}
-
 void main_sim(void){
 
     unsigned int count = 0;
-    animate_rotate(count);
+    // animate_rotate(count);
+    // animate_movement(count);
+    animate_line_follower(count);
 
     // Draw the first window (sky perspective)
     glutSetWindow(mainCamera);
     init_main_camera(x_cam_transform, y_cam_transform, z_cam_transform);
-    draw_scene(x_cam_translate, y_cam_translate, z_cam_translate, cam_rotate_x, cam_rotate_y, cam_rotate_z);
+    render_scene1();
 
     // Draw the second window (third person car persepective)
     glutSetWindow(secondCamera);
     init_second_camera(0.0, 0.0, 0.0);
-    draw_scene(x_transpose_robot, y_transpose_robot, z_transpose_robot, x_rotate_robot, y_rotate_robot, z_rotate_robot);
+    render_scene2();
 
     // Draw the third window (sensor)
     glutSetWindow(thirdCamera);
     init_third_camera(x_cam_transform, y_cam_transform, z_cam_transform);
-    draw_sensor_scene(x_transpose_robot, y_transpose_robot, z_transpose_robot, x_rotate_robot, y_rotate_robot, z_rotate_robot);
+    render_scene3();
+    // draw_sensor_scene(x_translate_robot, y_translate_robot, z_translate_robot, x_rotate_robot, y_rotate_robot, z_rotate_robot);
     update_reading();
 
     // Draw the fourth window (ir sensor detection)
     glutSetWindow(fourthCamera);
     render_scene4();
 
-    usleep(200000);
+    usleep(50000);
+}
+
+void render_scene1(void){
+    GLfloat x_camera_center = x_cam_translate;
+    GLfloat y_camera_center = y_cam_translate;
+    GLfloat z_camera_center = z_cam_translate;
+    GLfloat x_camera_rotate = cam_rotate_x;
+    GLfloat y_camera_rotate = cam_rotate_y;
+    GLfloat z_camera_rotate = cam_rotate_z;
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glPushMatrix();
+        // Frame rotation and translation
+        glTranslatef(-x_camera_center, -y_camera_center, -z_camera_center);
+        glRotatef(-x_camera_rotate, 1, 0, 0);
+        glRotatef(-y_camera_rotate, 0, 1, 0);
+        glRotatef(-z_camera_rotate, 0, 0, 1);
+
+        // Draw the objects
+        draw_floor();
+        draw_arena(textureID);
+
+        glPushMatrix();
+            glTranslatef(x_translate_robot, y_translate_robot, z_translate_robot);
+            glRotatef(z_rotate_robot + z_rotate_robot_offset, 0.0, 0.0, 1.0);
+            draw_robot();
+        glPopMatrix();
+    glPopMatrix();
+
+    glutSwapBuffers();
+}
+
+void render_scene2(void){
+    GLfloat x_camera_center = x_translate_robot;
+    GLfloat y_camera_center = y_translate_robot;
+    GLfloat z_camera_center = z_translate_robot;
+    GLfloat x_camera_rotate = x_rotate_robot;
+    GLfloat y_camera_rotate = y_rotate_robot;
+    GLfloat z_camera_rotate = z_rotate_robot + z_rotate_robot_offset;
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glPushMatrix();
+        // Frame rotation and translation
+        glRotatef(-x_camera_rotate, 1, 0, 0);
+        glRotatef(-y_camera_rotate, 0, 1, 0);
+        glRotatef(-z_camera_rotate, 0, 0, 1);
+        glTranslatef(-x_camera_center, -y_camera_center, -z_camera_center);
+        
+        // Draw the objects
+        draw_floor();
+        draw_arena(textureID);
+    glPopMatrix();
+    glPushMatrix();
+        draw_robot();
+    glPopMatrix();
+
+    glutSwapBuffers();
+}
+
+void render_scene3(void){
+    GLfloat x_camera_center = x_translate_robot;
+    GLfloat y_camera_center = y_translate_robot;
+    GLfloat z_camera_center = z_translate_robot;
+    GLfloat x_camera_rotate = x_rotate_robot;
+    GLfloat y_camera_rotate = y_rotate_robot;
+    GLfloat z_camera_rotate = z_rotate_robot + z_rotate_robot_offset;
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glPushMatrix();
+        // Frame rotation and translation
+        glRotatef(-x_camera_rotate, 1, 0, 0);
+        glRotatef(-y_camera_rotate, 0, 1, 0);
+        glRotatef(-z_camera_rotate, 0, 0, 1);
+        glTranslatef(-x_camera_center, -y_camera_center, -z_camera_center);
+        
+        // Draw the objects
+        draw_floor();
+        draw_arena(textureID);
+    glPopMatrix();
+
+    glutSwapBuffers();
+}
+
+void render_scene4(void){
+    glClear(GL_COLOR_BUFFER_BIT);
+    glDrawPixels(500, 100, GL_LUMINANCE, GL_UNSIGNED_BYTE, image_raw);
+    glutSwapBuffers();
 }
 
 void draw_scene(GLfloat x_camera_center, GLfloat y_camera_center, GLfloat z_camera_center, GLfloat x_camera_rotate, GLfloat y_camera_rotate, GLfloat z_camera_rotate){
@@ -301,11 +351,14 @@ void draw_scene(GLfloat x_camera_center, GLfloat y_camera_center, GLfloat z_came
         draw_floor();
         draw_arena(textureID);
 
-        glPushMatrix();
-            glRotatef(z_rotate_robot, 0.0, 0.0, 1.0);
-            draw_robot();
-        glPopMatrix();
+        // glPushMatrix();
+        // glRotatef(z_rotate_robot_offset + z_rotate_robot, 0.0, 0.0, 1.0);
+        //     glTranslatef(x_translate_robot, y_translate_robot, z_translate_robot);
+            
+        //     draw_robot();
+        // glPopMatrix();
     glPopMatrix();
+    draw_robot();
 
     glutSwapBuffers();
 }
