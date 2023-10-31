@@ -34,12 +34,16 @@ GLfloat x_translate_robot = 0;
 GLfloat y_translate_robot = 0;
 GLfloat z_translate_robot = 0;
 
+// GLfloat movement_speed = 0.005;
 GLfloat movement_speed = 0.005;
 
 GLfloat x_rotate_robot = 0.0;
 GLfloat y_rotate_robot = 0.0;
 GLfloat z_rotate_robot = 0.0;
 GLfloat z_rotate_robot_offset = -90.0;
+
+// Arena file Path
+char arenapath[] = "assets/ArenaPath2-Thin.ppm";
 
 #include "constants.c"
 #include "keyboard.c"
@@ -176,7 +180,7 @@ void init_main_window(void){
     glutSpecialFunc(&processSpecialKeys);
 
     // Load Arena Texture
-    textureID = loadGLTexture("assets/ArenaPath.ppm", 500, 500);
+    textureID = loadGLTexture(arenapath, 500, 500);
 }
 
 void init_second_window(void){
@@ -188,7 +192,7 @@ void init_second_window(void){
     glutKeyboardFunc(&keyboardKeys);
     glutSpecialFunc(&processSpecialKeys);
     // Load Arena Texture
-    textureID = loadGLTexture("assets/ArenaPath.ppm", 500, 500);
+    textureID = loadGLTexture(arenapath, 500, 500);
 }
 
 void init_third_window(void){
@@ -200,7 +204,7 @@ void init_third_window(void){
     glutKeyboardFunc(&keyboardKeys);
     glutSpecialFunc(&processSpecialKeys);
     // Load Arena Texture
-    textureID = loadGLTexture("assets/ArenaPath.ppm", 500, 500);
+    textureID = loadGLTexture(arenapath, 500, 500);
 }
 
 void init_fourth_window(void){
@@ -212,7 +216,7 @@ void init_fourth_window(void){
     glutKeyboardFunc(&keyboardKeys);
     glutSpecialFunc(&processSpecialKeys);
     // Load Arena Texture
-    textureID = loadGLTexture("assets/ArenaPath.ppm", 500, 500);
+    textureID = loadGLTexture(arenapath, 500, 500);
 }
 
 void main_sim(void){
@@ -243,7 +247,7 @@ void main_sim(void){
     glutSetWindow(fourthCamera);
     render_scene4();
 
-    usleep(50000);
+    usleep(1000);
 }
 
 void render_scene1(void){
